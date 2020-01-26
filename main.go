@@ -10,11 +10,14 @@ import (
 var session *gocql.Session
 
 func main() {
+	var err error
 	cluster := gocql.NewCluster("localhost")
 	cluster.Keyspace = "escrow"
 	cluster.Consistency = gocql.LocalQuorum
-	session, _ = cluster.CreateSession()
-
+	session, err = cluster.CreateSession()
+	if err != nil {
+		log.Fatal(err)
+	}
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", InsertPlanet).Methods("POST")
 	router.HandleFunc("/", GetPlanets).Methods("GET")
