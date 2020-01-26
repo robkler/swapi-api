@@ -29,9 +29,9 @@ func main() {
 	//router.HandleFunc("/", heartbeat).Methods("GET")
 	router.HandleFunc("/", InsertPlanet).Methods("POST")
 	router.HandleFunc("/", GetPlanets).Methods("GET")
-	router.HandleFunc("/name", GetByName).Methods("GET")
+	router.HandleFunc("/name/{user_name}", GetByName).Methods("GET")
 	router.HandleFunc("/id/{user_uuid}", GetById).Methods("GET")
-	router.HandleFunc("/", DeletePlanet).Methods("DELETE")
+	router.HandleFunc("/{user_uuid}", DeletePlanet).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
@@ -51,6 +51,18 @@ func GetPlanets(w http.ResponseWriter, r *http.Request) {
 
 }
 func GetByName(w http.ResponseWriter, r *http.Request) {
+	p := Planet{}
+	var err error
+	vars := mux.Vars(r)
+	p.Name = vars["user_name"]
+	err = p.FindByName(session)
+	if err != nil {
+		if err.Error() == "not found" {
+			w.WriteHeader(404)
+			return
+		}
+	}
+	json.NewEncoder(w).Encode(p)
 }
 func GetById(w http.ResponseWriter, r *http.Request) {
 	p := Planet{}
@@ -83,7 +95,7 @@ type Planet struct {
 
 func (p *Planet) Insert(session *gocql.Session) error {
 	id := gocql.TimeUUID()
-	if err := session.Query(`INSERT INTO swapi.planeta (id, name, climate, terrain) VALUES (? ,? ,? ,? )`,
+	if err := session.Query(`INSERT INTO swapi.planet (id, name, climate, terrain) VALUES (? ,? ,? ,? )`,
 		id, p.Name, p.Climate, p.Terrain).Consistency(
 		gocql.One).Exec(); err != nil {
 		return err
@@ -93,9 +105,18 @@ func (p *Planet) Insert(session *gocql.Session) error {
 }
 
 func (p *Planet) FindById(session *gocql.Session) error {
-	if err := session.Query(`SELECT name,climate,terrain FROM swapi.planeta WHERE id = ?`,
+	if err := session.Query(`SELECT name,climate,terrain FROM swapi.planet WHERE id = ?`,
 		p.Id.String()).Consistency(
 		gocql.One).Scan(&p.Name, &p.Climate, &p.Terrain); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *Planet) FindByName(session *gocql.Session) error {
+	if err := session.Query(`SELECT id, climate, terrain FROM swapi.planet_by_name WHERE name = ?`,
+		p.Name).Consistency(
+		gocql.One).Scan(&p.Id, &p.Climate, &p.Terrain); err != nil {
 		return err
 	}
 	return nil
@@ -104,7 +125,7 @@ func (p *Planet) FindById(session *gocql.Session) error {
 func SelectAllPlanets(session *gocql.Session) []Planet {
 	var planetList []Planet
 	m := map[string]interface{}{}
-	interable := session.Query(`SELECT id, name,climate,terrain FROM swapi.planeta`).Consistency(
+	interable := session.Query(`SELECT id, name,climate,terrain FROM swapi.planet_by_name`).Consistency(
 		gocql.One).Iter()
 	for interable.MapScan(m) {
 		planetList = append(planetList, Planet{
