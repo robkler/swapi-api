@@ -37,8 +37,14 @@ func main() {
 
 func InsertPlanet(w http.ResponseWriter, r *http.Request) {
 	var planet Planet
+	var err error
 	json.NewDecoder(r.Body).Decode(&planet)
-	err := planet.Insert(session)
+	err = planet.FindByName(session)
+	if err == nil {
+		w.WriteHeader(409)
+		return
+	}
+	err = planet.Insert(session)
 		if err != nil {
 		}
 		w.WriteHeader(201)
