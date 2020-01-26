@@ -32,7 +32,6 @@ Para rodar o código é necessário ter um cassandra iniciado, para isso pode se
 
 Após isso é necessário aplicar o o schema que esta no arquivo ./cassandra/cassandra.sql.
 
-Para rodar a aplicação com docker é necessário os seguintes comandos:
-- docker build -t swapi-api .
-- docker run --name swapi --network="host" -d swapi-ap
+Para rodar a aplicação com docker é necessário o seguinte comando:
+- docker run --name swapi --network="host" -d robkler/swapi-api
 
