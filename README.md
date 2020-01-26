@@ -34,5 +34,5 @@ Após isso é necessário aplicar o o schema que esta no arquivo ./cassandra/cas
 
 Para rodar a aplicação com docker é necessário os seguintes comandos:
 - docker build -t swapi-api .
-- docker run --name swapi -p 8080:8080 --network="host" swapi-ap
+- docker run --name swapi --network="host" -d swapi-ap
 
