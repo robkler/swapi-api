@@ -8,25 +8,15 @@ import (
 	"net/http"
 )
 
-type heartbeatResponse struct {
-	Status string `json:"status"`
-	Code   int    `json:"code"`
-}
-
-func heartbeat(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(heartbeatResponse{Status: "OK", Code: 200})
-}
-
 var session *gocql.Session
 
 func main() {
 	cluster := gocql.NewCluster("localhost")
 	cluster.Keyspace = "escrow"
-	cluster.Consistency = gocql.One
+	cluster.Consistency = gocql.LocalQuorum
 	session, _ = cluster.CreateSession()
 
 	router := mux.NewRouter().StrictSlash(true)
-	//router.HandleFunc("/", heartbeat).Methods("GET")
 	router.HandleFunc("/", InsertPlanet).Methods("POST")
 	router.HandleFunc("/", GetPlanets).Methods("GET")
 	router.HandleFunc("/name/{user_name}", GetByName).Methods("GET")
@@ -45,14 +35,15 @@ func InsertPlanet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err = planet.Insert(session)
-		if err != nil {
-		}
-		w.WriteHeader(201)
+	if err != nil {
+	}
+	w.WriteHeader(201)
 	json.NewEncoder(w).Encode(planet)
 }
 
 func GetPlanets(w http.ResponseWriter, r *http.Request) {
-	planetList := SelectAllPlanets(session)
+	var planet Planet
+	planetList := planet.SelectAllPlanets(session)
 	json.NewEncoder(w).Encode(planetList)
 
 }
@@ -90,6 +81,29 @@ func GetById(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(p)
 }
 func DeletePlanet(w http.ResponseWriter, r *http.Request) {
+	p := Planet{}
+	var err error
+	vars := mux.Vars(r)
+	uuid, err := gocql.ParseUUID(vars["user_uuid"])
+	if err != nil {
+		w.WriteHeader(412)
+		return
+	}
+	p.Id = uuid
+	err = p.FindById(session)
+	if err.Error() == "not found"{
+		w.WriteHeader(404)
+		return
+	}
+	err = p.DeletePlanet(session)
+	if err != nil {
+		if err != nil {
+			w.WriteHeader(412)
+			return
+		}
+	}
+
+	json.NewEncoder(w).Encode(p)
 }
 
 type Planet struct {
@@ -128,12 +142,12 @@ func (p *Planet) FindByName(session *gocql.Session) error {
 	return nil
 }
 
-func SelectAllPlanets(session *gocql.Session) []Planet {
+func (p *Planet) SelectAllPlanets(session *gocql.Session) []Planet {
 	var planetList []Planet
 	m := map[string]interface{}{}
-	interable := session.Query(`SELECT id, name,climate,terrain FROM swapi.planet_by_name`).Consistency(
+	iterable := session.Query(`SELECT id, name,climate,terrain FROM swapi.planet_by_name`).Consistency(
 		gocql.One).Iter()
-	for interable.MapScan(m) {
+	for iterable.MapScan(m) {
 		planetList = append(planetList, Planet{
 			Id:      m["id"].(gocql.UUID),
 			Name:    m["name"].(string),
@@ -143,4 +157,8 @@ func SelectAllPlanets(session *gocql.Session) []Planet {
 		m = map[string]interface{}{}
 	}
 	return planetList
+}
+
+func (p *Planet) DeletePlanet(session *gocql.Session) error {
+	return session.Query(`DELETE FROM swapi.planet WHERE id = ?`, p.Id).Consistency(gocql.One).Exec()
 }
