@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gocql/gocql"
 	"github.com/gorilla/mux"
 	"log"
@@ -9,20 +10,29 @@ import (
 
 var session *gocql.Session
 
-func main() {
+func init() {
 	var err error
-	cluster := gocql.NewCluster("localhost")
-	cluster.Keyspace = "escrow"
-	cluster.Consistency = gocql.LocalQuorum
+	cluster := gocql.NewCluster(cassandraHost)
+	cluster.Authenticator = gocql.PasswordAuthenticator{
+		Username: cassandraUserName,
+		Password: cassandraPassword,
+	}
 	session, err = cluster.CreateSession()
 	if err != nil {
 		log.Fatal(err)
 	}
+	getAllPlanets()
+	fmt.Println("Init")
+}
+
+func main() {
+
+
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", InsertPlanet).Methods("POST")
 	router.HandleFunc("/", GetPlanets).Methods("GET")
 	router.HandleFunc("/name/{user_name}", GetByName).Methods("GET")
 	router.HandleFunc("/id/{user_uuid}", GetById).Methods("GET")
 	router.HandleFunc("/{user_uuid}", DeletePlanet).Methods("DELETE")
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe(":"+apiPort, router))
 }

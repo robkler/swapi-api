@@ -7,6 +7,7 @@ type Planet struct {
 	Name    string     `json:"name"`
 	Climate string     `json:"climate"`
 	Terrain string     `json:"terrain"`
+	FilmsAppears int   `json:"films_appears"`
 }
 
 func (p *Planet) Insert() error {
