@@ -32,6 +32,8 @@ func InsertPlanet(w http.ResponseWriter, r *http.Request) {
 	}
 	err = planet.Insert()
 	if err != nil {
+		w.WriteHeader(500)
+		return
 	}
 	w.WriteHeader(201)
 }
@@ -91,16 +93,16 @@ func DeletePlanet(w http.ResponseWriter, r *http.Request) {
 	}
 	p.Id = uuid
 	err = p.FindById()
-	if err.Error() == "not found" {
-		w.WriteHeader(404)
-		return
+	if err != nil {
+		if err.Error() == "not found" {
+			w.WriteHeader(404)
+			return
+		}
 	}
 	err = p.DeletePlanet()
 	if err != nil {
-		if err != nil {
 			w.WriteHeader(412)
 			return
-		}
 	}
 	json.NewEncoder(w).Encode(p)
 }

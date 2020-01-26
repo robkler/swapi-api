@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gocql/gocql"
 	"github.com/gorilla/mux"
 	"log"
@@ -22,17 +21,15 @@ func init() {
 		log.Fatal(err)
 	}
 	getAllPlanets()
-	fmt.Println("Init")
+	log.Println("Api Ready")
 }
 
 func main() {
-
-
 	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/", InsertPlanet).Methods("POST")
-	router.HandleFunc("/", GetPlanets).Methods("GET")
-	router.HandleFunc("/name/{user_name}", GetByName).Methods("GET")
-	router.HandleFunc("/id/{user_uuid}", GetById).Methods("GET")
-	router.HandleFunc("/{user_uuid}", DeletePlanet).Methods("DELETE")
+	router.HandleFunc("/planet", InsertPlanet).Methods("POST")
+	router.HandleFunc("/planet", GetPlanets).Methods("GET")
+	router.HandleFunc("/planet/{user_name}/name", GetByName).Methods("GET")
+	router.HandleFunc("/planet/{user_uuid}/id", GetById).Methods("GET")
+	router.HandleFunc("/planet/{user_uuid}", DeletePlanet).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(":"+apiPort, router))
 }

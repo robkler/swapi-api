@@ -40,22 +40,22 @@ func get(next string) {
 		log.Fatal(err)
 	}
 	err = json.NewDecoder(rep.Body).Decode(&r)
-	for _ , ele := range r.Results {
+	for _, ele := range r.Results {
 		planets.planets[ele.Name] = ele
 	}
-	if r.Next != ""{
+	if r.Next != "" {
 		get(r.Next)
 	}
 }
 
-func (m *MapPlanets) film (planet string) (int,error) {
+func (m *MapPlanets) film(planet string) (int, error) {
 	if !m.containPlanet(planet) {
-		return  0, errors.New("Non-existent planet")
+		return 0, errors.New("Non-existent planet")
 	}
-	return len(m.planets[planet].Films) , nil
+	return len(m.planets[planet].Films), nil
 }
 
-func (m *MapPlanets) containPlanet(planet  string) bool{
+func (m *MapPlanets) containPlanet(planet string) bool {
 	_, contain := m.planets[planet]
 	return contain
 }
