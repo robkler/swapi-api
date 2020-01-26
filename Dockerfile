@@ -2,10 +2,10 @@ FROM golang:alpine
 
 WORKDIR /app
 
-# Set necessary environmet variables needed for our image
-ENV GO111MODULE=on \
-    CGO_ENABLED=0 \
-    GOOS=linux
+ENV API_PORT  8080
+ENV CASSANDRA_HOST  localhost
+ENV CASSANDRA_USERNAME cassandra
+ENV CASSANDRA_PASSWORD cassandra
 
 # Copy and download dependency using go mod
 COPY go.mod .
