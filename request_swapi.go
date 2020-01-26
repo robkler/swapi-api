@@ -25,11 +25,13 @@ type MapPlanets struct {
 var planets MapPlanets
 
 func getAllPlanets() {
+	log.Println("Getting Planets")
 	mapPlanets := make(map[string]Planets)
 	planets = MapPlanets{
 		planets: mapPlanets,
 	}
 	get("https://swapi.co/api/planets/")
+	log.Println("Got Planets")
 }
 
 func get(next string) {
@@ -48,7 +50,7 @@ func get(next string) {
 	}
 }
 
-func (m *MapPlanets) film(planet string) (int, error) {
+func (m *MapPlanets) numOfAppearances(planet string) (int, error) {
 	if !m.containPlanet(planet) {
 		return 0, errors.New("Non-existent planet")
 	}

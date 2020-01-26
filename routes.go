@@ -7,9 +7,12 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"time"
 )
 
 func InsertPlanet(w http.ResponseWriter, r *http.Request) {
+	t1 := time.Now()
+	defer log.Println("Insert Planet took: ", timeDuration(t1))
 	var planet Planet
 	var err error
 	err = json.NewDecoder(r.Body).Decode(&planet)
@@ -39,15 +42,21 @@ func InsertPlanet(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetPlanets(w http.ResponseWriter, r *http.Request) {
+
+	t1 := time.Now()
+	defer log.Println("Get Planets took: ", timeDuration(t1))
 	var planet Planet
 	planetList := planet.SelectAllPlanets()
 	for _, ele := range planetList {
-		ele.FilmsAppears, _ = planets.film(ele.Name) //todo fix
+		ele.FilmsAppears, _ = planets.numOfAppearances(ele.Name) //todo fix
 	}
 	json.NewEncoder(w).Encode(planetList)
 
 }
 func GetByName(w http.ResponseWriter, r *http.Request) {
+
+	t1 := time.Now()
+	defer log.Println("Get By name took: ", timeDuration(t1))
 	p := Planet{}
 	var err error
 	vars := mux.Vars(r)
@@ -59,10 +68,13 @@ func GetByName(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	p.FilmsAppears, _ = planets.film(p.Name)
+	p.FilmsAppears, _ = planets.numOfAppearances(p.Name)
 	json.NewEncoder(w).Encode(p)
 }
 func GetById(w http.ResponseWriter, r *http.Request) {
+
+	t1 := time.Now()
+	defer log.Println("Get by id took: ", timeDuration(t1))
 	p := Planet{}
 	var err error
 	vars := mux.Vars(r)
@@ -79,10 +91,12 @@ func GetById(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	p.FilmsAppears, _ = planets.film(p.Name)
+	p.FilmsAppears, _ = planets.numOfAppearances(p.Name)
 	json.NewEncoder(w).Encode(p)
 }
 func DeletePlanet(w http.ResponseWriter, r *http.Request) {
+	t1 := time.Now()
+	defer log.Println("Delete Planet took: ", timeDuration(t1))
 	p := Planet{}
 	var err error
 	vars := mux.Vars(r)
@@ -105,4 +119,9 @@ func DeletePlanet(w http.ResponseWriter, r *http.Request) {
 			return
 	}
 	json.NewEncoder(w).Encode(p)
+}
+
+func timeDuration(t time.Time) time.Duration {
+	t2 := time.Now()
+	return t2.Sub(t)
 }
