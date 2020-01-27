@@ -4,7 +4,7 @@ CREATE KEYSPACE swapi
    'replication_factor' : 1
   };
 
-create table planet
+create table swapi.planet
 (
     id      uuid primary key,
     climate text,
@@ -16,7 +16,7 @@ create table planet
      and compression = {'class': 'org.apache.cassandra.io.compress.LZ4Compressor', 'chunk_length_in_kb': '64'}
      and dclocal_read_repair_chance = 0.1;
 
-create materialized view planet_by_name
+create materialized view swapi.planet_by_name
 as
 select name, id, climate, terrain
 from planet

@@ -4,9 +4,9 @@ import "github.com/gocql/gocql"
 
 type Planet struct {
 	Id      gocql.UUID `json:"id"`
-	Name    string     `json:"name"`
-	Climate string     `json:"climate"`
-	Terrain string     `json:"terrain"`
+	Name    string     `json:"name" validate:"required"`
+	Climate string     `json:"climate" validate:"required"`
+	Terrain string     `json:"terrain" validate:"required"`
 	FilmsAppears int   `json:"films_appears"`
 }
 
