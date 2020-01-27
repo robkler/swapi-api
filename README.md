@@ -12,9 +12,9 @@ Api em Go com as seguintes funcionalidades:
 
 - Remover planeta
 
-Sendo que para cada planeta buscado era necessário retorna a quantidade de aparições em filmes, dado obtido na API pública do Star Wars: https://swapi.co/
+Sendo que para cada planeta buscado era necessário retornar a quantidade de aparições em filmes, dado obtido na API pública do Star Wars: https://swapi.co/
 
-O banco de dado usado utilizado foi o Cassandra. Para conexão é necessário passar as seguintes variáveis de ambiente:
+O banco de dados utilizado foi o Cassandra. Para conexão é necessário passar as seguintes variáveis de ambiente:
 
 - CASSANDRA_HOST localhost
 - CASSANDRA_USERNAME cassandra
