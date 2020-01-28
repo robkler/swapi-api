@@ -26,10 +26,18 @@ func init() {
 
 func main() {
 	router := mux.NewRouter().StrictSlash(true)
+	router.Use(commonMiddleware)
 	router.HandleFunc("/planet", InsertPlanet).Methods("POST")
 	router.HandleFunc("/planet", GetPlanets).Methods("GET")
 	router.HandleFunc("/planet/{user_name}/name", GetByName).Methods("GET")
 	router.HandleFunc("/planet/{user_uuid}/id", GetById).Methods("GET")
 	router.HandleFunc("/planet/{user_uuid}", DeletePlanet).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(":"+apiPort, router))
+}
+
+func commonMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Type", "application/json")
+		next.ServeHTTP(w, r)
+	})
 }
