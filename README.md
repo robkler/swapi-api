@@ -35,3 +35,9 @@ Após isso é necessário aplicar o o schema que esta no arquivo ./cassandra/cas
 Para rodar a aplicação com docker é necessário o seguinte comando:
 - docker run --name swapi --network="host" -d robkler/swapi-api
 
+A documentação e teste da api foi feita usando o postman.
+
+Para executar os testes é necessário ou utilizar o postman ou o newman.
+
+O comando para executar pelo newman é:
+- newman run postman/swapi.postman_collection.json
