@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"github.com/go-playground/validator/v10"
 	"github.com/gocql/gocql"
 	"github.com/gorilla/mux"
@@ -10,6 +9,11 @@ import (
 	"net/http"
 	"time"
 )
+
+func timeTrack(start time.Time, name string) {
+	elapsed := time.Since(start)
+	log.Printf("%s took %s", name, elapsed)
+}
 
 type ErrorJson struct {
 	Error string `json:"error"`
@@ -21,8 +25,7 @@ func validate(s interface{}) error {
 }
 
 func InsertPlanet(w http.ResponseWriter, r *http.Request) {
-	t1 := time.Now()
-	defer log.Println("Insert Planet took: ", timeDuration(t1))
+	defer timeTrack(time.Now(),"Insert planet")
 	var planet Planet
 	var err error
 	err = json.NewDecoder(r.Body).Decode(&planet)
@@ -54,8 +57,9 @@ func InsertPlanet(w http.ResponseWriter, r *http.Request) {
 	ok := planets.containPlanet(planet.Name)
 	if !ok {
 		w.WriteHeader(PreconditionFailed)
-		err = errors.New("Non-existent planet")
-		json.NewEncoder(w).Encode(err) //todo fix
+		json.NewEncoder(w).Encode(ErrorJson{
+			Error: "Non-existent planet",
+		}) //todo fix
 		return
 	}
 	err = planet.Insert()
@@ -67,8 +71,8 @@ func InsertPlanet(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetPlanets(w http.ResponseWriter, r *http.Request) {
-	t1 := time.Now()
-	defer log.Println("Get Planets took: ", timeDuration(t1))
+	defer timeTrack(time.Now(),"Get Planets")
+
 	var planet Planet
 	planetList := planet.SelectAllPlanets()
 	for _, ele := range planetList {
@@ -78,8 +82,8 @@ func GetPlanets(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetByName(w http.ResponseWriter, r *http.Request) {
-	t1 := time.Now()
-	defer log.Println("Get By name took: ", timeDuration(t1))
+	defer timeTrack(time.Now(),"Get planet by name")
+
 	p := Planet{}
 	var err error
 	vars := mux.Vars(r)
@@ -96,8 +100,8 @@ func GetByName(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetById(w http.ResponseWriter, r *http.Request) {
-	t1 := time.Now()
-	defer log.Println("Get by id took: ", timeDuration(t1))
+	defer timeTrack(time.Now(),"Get planet by id")
+
 	p := Planet{}
 	var err error
 	vars := mux.Vars(r)
@@ -119,8 +123,8 @@ func GetById(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeletePlanet(w http.ResponseWriter, r *http.Request) {
-	t1 := time.Now()
-	defer log.Println("Delete Planet took: ", timeDuration(t1))
+	defer timeTrack(time.Now(),"Delete planet")
+
 	p := Planet{}
 	var err error
 	vars := mux.Vars(r)
@@ -143,11 +147,6 @@ func DeletePlanet(w http.ResponseWriter, r *http.Request) {
 			return
 	}
 	json.NewEncoder(w).Encode(p)
-}
-
-func timeDuration(t time.Time) time.Duration {
-	t2 := time.Now()
-	return t2.Sub(t)
 }
 
 const (
