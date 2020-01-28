@@ -6,7 +6,21 @@
 	},
 	"item": [
 		{
-			"name": "Insert Planet",
+			"name": "Inserindo Planeta",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "83e8e961-8447-4767-aa51-1361bb21dd4e",
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [
@@ -38,10 +52,326 @@
 					]
 				}
 			},
-			"response": []
+			"response": [
+				{
+					"name": "Insert Planet",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\":\"Hoth\",\n\t\"climate\":\"Arid\",\n\t\"terrain\":\"Dessert\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/planet",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"planet"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 28 Jan 2020 00:28:11 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "0"
+						}
+					],
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "Tentando inserir Duplicada",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "83e8e961-8447-4767-aa51-1361bb21dd4e",
+						"exec": [
+							"pm.test(\"Status code is 409\", function () {",
+							"    pm.response.to.have.status(409);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\":\"Hoth\",\n\t\"climate\":\"Arid\",\n\t\"terrain\":\"Dessert\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/planet",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"planet"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Insert Planet",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\":\"Hoth\",\n\t\"climate\":\"Arid\",\n\t\"terrain\":\"Dessert\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/planet",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"planet"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 28 Jan 2020 00:28:11 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "0"
+						}
+					],
+					"cookie": [],
+					"body": null
+				},
+				{
+					"name": "Tentando inserir Duplicada",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\":\"Hoth\",\n\t\"climate\":\"Arid\",\n\t\"terrain\":\"Dessert\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/planet",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"planet"
+							]
+						}
+					},
+					"status": "Conflict",
+					"code": 409,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 28 Jan 2020 00:30:41 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "0"
+						}
+					],
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "Tentando inserir com campos faltando",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7eec5e6e-06ae-4fca-86ff-f0baf48fefb8",
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\":\"Hoth\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/planet",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"planet"
+					]
+				},
+				"description": "Espera receber erro 400 pq o body nao esta completo"
+			},
+			"response": [
+				{
+					"name": "Tentando inserir com campos faltando",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\":\"Hoth\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/planet",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"planet"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 28 Jan 2020 00:53:36 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "189"
+						},
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "{\"error\":\"Key: 'Planet.Climate' Error:Field validation for 'Climate' failed on the 'required' tag\\nKey: 'Planet.Terrain' Error:Field validation for 'Terrain' failed on the 'required' tag\"}\n"
+				}
+			]
 		},
 		{
 			"name": "Gel All Planets",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2cbbc9fc-4c6d-4904-9d41-c86a34863cf6",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -77,10 +407,79 @@
 					]
 				}
 			},
-			"response": []
+			"response": [
+				{
+					"name": "Pegando todos os planetas",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/planet/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"planet",
+								""
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 28 Jan 2020 00:30:59 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "117"
+						},
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "[{\"id\":\"581094d2-4165-11ea-b27c-b025aa1a2a0d\",\"name\":\"Hoth\",\"climate\":\"Arid\",\"terrain\":\"Dessert\",\"films_appears\":0}]\n"
+				}
+			]
 		},
 		{
 			"name": "Get Planet by name",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "bdab4372-380c-4fc0-a505-9a1a0b342db7",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -117,10 +516,92 @@
 					]
 				}
 			},
-			"response": []
+			"response": [
+				{
+					"name": "Get Planet by name",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/planet/Hoth/name",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"planet",
+								"Hoth",
+								"name"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 28 Jan 2020 00:31:49 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "115"
+						},
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "{\"id\":\"581094d2-4165-11ea-b27c-b025aa1a2a0d\",\"name\":\"Hoth\",\"climate\":\"Arid\",\"terrain\":\"Dessert\",\"films_appears\":0}\n"
+				}
+			]
 		},
 		{
 			"name": "Get Planet by Id",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "87772a40-efeb-478b-8d1f-9d43b8fdbaca",
+						"exec": [
+							"pm.sendRequest(\"http://localhost:8080/planet/Hoth/name\", function (err, response) {",
+							"    pm.environment.set(\"user_id\",response.json().id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "33cbf6e7-ab8c-4a66-a68c-1891415a8760",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -144,7 +625,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/planet/b8971912-4089-11ea-928c-b025aa1a2a0d/id",
+					"raw": "http://localhost:8080/planet/{{user_id}}/id",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -152,15 +633,313 @@
 					"port": "8080",
 					"path": [
 						"planet",
-						"b8971912-4089-11ea-928c-b025aa1a2a0d",
+						"{{user_id}}",
 						"id"
 					]
 				}
 			},
-			"response": []
+			"response": [
+				{
+					"name": "Get Planet by Id",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/planet/{{user_id}}/id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"planet",
+								"{{user_id}}",
+								"id"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 28 Jan 2020 00:41:04 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "115"
+						},
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "{\"id\":\"581094d2-4165-11ea-b27c-b025aa1a2a0d\",\"name\":\"Hoth\",\"climate\":\"Arid\",\"terrain\":\"Dessert\",\"films_appears\":0}\n"
+				}
+			]
+		},
+		{
+			"name": "Buscando planeta por nome que não existe",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "eac8eced-8a90-4d92-be31-7fa994182a8a",
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {",
+							"    pm.response.to.have.status(404);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/planet/Terra/name",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"planet",
+						"Terra",
+						"name"
+					]
+				},
+				"description": "Buscando planeta que não existe, espera erro 404 not found"
+			},
+			"response": [
+				{
+					"name": "Buscando planeta por nome que não existe",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/planet/Terra/name",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"planet",
+								"Terra",
+								"name"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 28 Jan 2020 00:56:16 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "0"
+						}
+					],
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "Buscando planeta por id que não existe",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "adff9978-64e2-4193-8631-6b40dcd98d6f",
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {",
+							"    pm.response.to.have.status(404);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/planet/d82de6db-21e8-4225-ad88-a32c340262a2/id",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"planet",
+						"d82de6db-21e8-4225-ad88-a32c340262a2",
+						"id"
+					]
+				},
+				"description": "Buscando planeta por id que não existe, espera erra 404 not found"
+			},
+			"response": [
+				{
+					"name": "Buscando planeta por id que não existe",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/planet/d82de6db-21e8-4225-ad88-a32c340262a2/id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"planet",
+								"d82de6db-21e8-4225-ad88-a32c340262a2",
+								"id"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 28 Jan 2020 00:57:10 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "0"
+						}
+					],
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "Buscando por id com id errado",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c0f9d966-64d0-4698-b7ec-8e49b256030b",
+						"exec": [
+							"pm.test(\"Status code is 412\", function () {",
+							"    pm.response.to.have.status(412);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/planet/d82de6db262a2/id",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"planet",
+						"d82de6db262a2",
+						"id"
+					]
+				},
+				"description": "Tentando buscar por id, com um id que não é um uuid"
+			},
+			"response": [
+				{
+					"name": "Buscando por id com id errado",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/planet/d82de6db262a2/id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"planet",
+								"d82de6db262a2",
+								"id"
+							]
+						}
+					},
+					"status": "Precondition Failed",
+					"code": 412,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 28 Jan 2020 00:57:45 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "0"
+						}
+					],
+					"cookie": [],
+					"body": null
+				}
+			]
 		},
 		{
 			"name": "Delete planet",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "78c28511-b3b9-4c41-867f-2ac180b9aca0",
+						"exec": [
+							"pm.sendRequest(\"http://localhost:8080/planet/Hoth/name\", function (err, response) {",
+							"    pm.environment.set(\"user_id\",response.json().id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "e4365611-4b1c-40a9-93fb-0780ff99c1a2",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "DELETE",
 				"header": [
@@ -181,7 +960,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/planet/b8971912-4089-11ea-928c-b025aa1a2a0d",
+					"raw": "http://localhost:8080/planet/{{user_id}}",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -189,11 +968,66 @@
 					"port": "8080",
 					"path": [
 						"planet",
-						"b8971912-4089-11ea-928c-b025aa1a2a0d"
+						"{{user_id}}"
 					]
 				}
 			},
-			"response": []
+			"response": [
+				{
+					"name": "Delete planet",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/planet/{{user_id}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"planet",
+								"{{user_id}}"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Tue, 28 Jan 2020 00:50:39 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "115"
+						},
+						{
+							"key": "Content-Type",
+							"value": "text/plain; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "{\"id\":\"31188206-4168-11ea-b27d-b025aa1a2a0d\",\"name\":\"Hoth\",\"climate\":\"Arid\",\"terrain\":\"Dessert\",\"films_appears\":0}\n"
+				}
+			]
 		}
 	],
 	"protocolProfileBehavior": {}
