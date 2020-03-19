@@ -22,20 +22,16 @@ type MapPlanets struct {
 	planets map[string]Planet
 }
 
-var Planets MapPlanets
-
-func GetAllPlanets() {
+func (m *MapPlanets) GetAllPlanets() {
 	log.Println("Getting Planet")
 	mapPlanets := make(map[string]Planet)
-	Planets = MapPlanets{
-		planets: mapPlanets,
-	}
-	Get("https://swapi.co/api/planets/")
-	log.Println(Planets)
+	m.planets =	mapPlanets
+	m.get("https://swapi.co/api/planets/")
+	log.Println(m.planets)
 	log.Println("Got Planet")
 }
 
-func Get(next string) {
+func (m *MapPlanets) get(next string) {
 	var r = Res{}
 	var err error
 	rep, err := http.Get(next)
@@ -44,10 +40,10 @@ func Get(next string) {
 	}
 	err = json.NewDecoder(rep.Body).Decode(&r)
 	for _, ele := range r.Results {
-		Planets.planets[ele.Name] = ele
+		m.planets[ele.Name] = ele
 	}
 	if r.Next != "" {
-		Get(r.Next)
+		m.get(r.Next)
 	}
 }
 

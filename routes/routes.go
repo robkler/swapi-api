@@ -7,7 +7,6 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
-	"swapi/swapi"
 	"time"
 )
 
@@ -55,7 +54,7 @@ func (pr *PlanetRoutes) InsertPlanet(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusConflict)
 		return
 	}
-	ok := request_swapi.Planets.ContainPlanet(p.Name)
+	ok := pr.Swapi.ContainPlanet(p.Name)
 	if !ok {
 		w.WriteHeader(http.StatusPreconditionFailed)
 		json.NewEncoder(w).Encode(ErrorJson{
@@ -72,17 +71,17 @@ func (pr *PlanetRoutes) InsertPlanet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (pr *PlanetRoutes) GetPlanets(w http.ResponseWriter, r *http.Request) {
-	defer timeTrack(time.Now(), "Get Planet")
+	defer timeTrack(time.Now(), "get Planet")
 
 	planetList := pr.PlanetDb.SelectAllPlanets()
 	for _, ele := range planetList {
-		ele.FilmsAppears, _ = request_swapi.Planets.NumOfAppearances(ele.Name) //todo fix
+		ele.FilmsAppears, _ = pr.Swapi.NumOfAppearances(ele.Name) //todo fix
 	}
 	json.NewEncoder(w).Encode(planetList)
 }
 
 func (pr *PlanetRoutes) GetByName(w http.ResponseWriter, r *http.Request) {
-	defer timeTrack(time.Now(), "Get planet by name")
+	defer timeTrack(time.Now(), "get planet by name")
 
 	p := Planet{}
 	var err error
@@ -95,12 +94,12 @@ func (pr *PlanetRoutes) GetByName(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	p.FilmsAppears, _ = request_swapi.Planets.NumOfAppearances(p.Name)
+	p.FilmsAppears, _ = pr.Swapi.NumOfAppearances(p.Name)
 	json.NewEncoder(w).Encode(p)
 }
 
 func (pr *PlanetRoutes) GetById(w http.ResponseWriter, r *http.Request) {
-	defer timeTrack(time.Now(), "Get planet by id")
+	defer timeTrack(time.Now(), "get planet by id")
 
 	p := Planet{}
 	var err error
@@ -118,7 +117,7 @@ func (pr *PlanetRoutes) GetById(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	p.FilmsAppears, _ = request_swapi.Planets.NumOfAppearances(p.Name)
+	p.FilmsAppears, _ = pr.Swapi.NumOfAppearances(p.Name)
 	json.NewEncoder(w).Encode(p)
 }
 

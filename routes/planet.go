@@ -12,6 +12,7 @@ type Planet struct {
 
 type PlanetRoutes struct {
 	PlanetDb PlanetDb
+	Swapi Swapi
 }
 
 type PlanetDb interface {
@@ -20,4 +21,9 @@ type PlanetDb interface {
 	FindByName(p *Planet) error
 	SelectAllPlanets() []Planet
 	DeletePlanet(p *Planet) error
+}
+
+type Swapi interface {
+	NumOfAppearances(planet string) (int, error)
+	ContainPlanet(planet string) bool
 }

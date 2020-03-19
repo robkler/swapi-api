@@ -7,19 +7,21 @@ import (
 	"swapi/db"
 	"swapi/environment"
 	"swapi/routes"
-	"swapi/swapi"
+	request_swapi "swapi/swapi"
 )
 
 
 func init() {
-	request_swapi.GetAllPlanets()
 	log.Println("Api Ready")
 }
 
 func main() {
 	planetDb := db.PlanetDb{}
+	mapPlanets := request_swapi.MapPlanets{}
+	mapPlanets.GetAllPlanets()
 	planetRoutes := routes.PlanetRoutes{
 		PlanetDb:&planetDb,
+		Swapi: &mapPlanets,
 	}
 
 	router := mux.NewRouter().StrictSlash(true)
