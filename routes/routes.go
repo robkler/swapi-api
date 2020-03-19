@@ -1,4 +1,4 @@
-package main
+package routes
 
 import (
 	"encoding/json"
@@ -7,6 +7,8 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"swapi/db"
+	"swapi/swapi"
 	"time"
 )
 
@@ -26,12 +28,12 @@ func validate(s interface{}) error {
 
 func InsertPlanet(w http.ResponseWriter, r *http.Request) {
 	defer timeTrack(time.Now(),"Insert planet")
-	var planet Planet
+	var planet db.Planet
 	var err error
 	err = json.NewDecoder(r.Body).Decode(&planet)
 
 	if err != nil {
-		w.WriteHeader(BadRequest)
+		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(ErrorJson{
 			Error: err.Error(),
 		})
@@ -42,7 +44,7 @@ func InsertPlanet(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Println(err)
-		w.WriteHeader(BadRequest)
+		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(ErrorJson{
 			Error: err.Error(),
 		})
@@ -51,12 +53,12 @@ func InsertPlanet(w http.ResponseWriter, r *http.Request) {
 
 	err = planet.FindByName()
 	if err == nil {
-		w.WriteHeader(Conflict)
+		w.WriteHeader(http.StatusConflict)
 		return
 	}
-	ok := planets.containPlanet(planet.Name)
+	ok := request_swapi.Planets.ContainPlanet(planet.Name)
 	if !ok {
-		w.WriteHeader(PreconditionFailed)
+		w.WriteHeader(http.StatusPreconditionFailed)
 		json.NewEncoder(w).Encode(ErrorJson{
 			Error: "Non-existent planet",
 		}) //todo fix
@@ -64,19 +66,19 @@ func InsertPlanet(w http.ResponseWriter, r *http.Request) {
 	}
 	err = planet.Insert()
 	if err != nil {
-		w.WriteHeader(InternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(Insert)
+	w.WriteHeader(http.StatusCreated)
 }
 
 func GetPlanets(w http.ResponseWriter, r *http.Request) {
-	defer timeTrack(time.Now(),"Get Planets")
+	defer timeTrack(time.Now(),"Get Planet")
 
-	var planet Planet
+	var planet db.Planet
 	planetList := planet.SelectAllPlanets()
 	for _, ele := range planetList {
-		ele.FilmsAppears, _ = planets.numOfAppearances(ele.Name) //todo fix
+		ele.FilmsAppears, _ = request_swapi.Planets.NumOfAppearances(ele.Name) //todo fix
 	}
 	json.NewEncoder(w).Encode(planetList)
 }
@@ -84,76 +86,68 @@ func GetPlanets(w http.ResponseWriter, r *http.Request) {
 func GetByName(w http.ResponseWriter, r *http.Request) {
 	defer timeTrack(time.Now(),"Get planet by name")
 
-	p := Planet{}
+	p := db.Planet{}
 	var err error
 	vars := mux.Vars(r)
 	p.Name = vars["user_name"]
 	err = p.FindByName()
 	if err != nil {
 		if err.Error() == "not found" {
-			w.WriteHeader(NotFound)
+			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 	}
-	p.FilmsAppears, _ = planets.numOfAppearances(p.Name)
+	p.FilmsAppears, _ = request_swapi.Planets.NumOfAppearances(p.Name)
 	json.NewEncoder(w).Encode(p)
 }
 
 func GetById(w http.ResponseWriter, r *http.Request) {
 	defer timeTrack(time.Now(),"Get planet by id")
 
-	p := Planet{}
+	p := db.Planet{}
 	var err error
 	vars := mux.Vars(r)
 	uuid, err := gocql.ParseUUID(vars["user_uuid"])
 	if err != nil {
-		w.WriteHeader(PreconditionFailed)
+		w.WriteHeader(http.StatusPreconditionFailed)
 		return
 	}
 	p.Id = uuid
 	err = p.FindById()
 	if err != nil {
 		if err.Error() == "not found" {
-			w.WriteHeader(NotFound)
+			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 	}
-	p.FilmsAppears, _ = planets.numOfAppearances(p.Name)
+	p.FilmsAppears, _ = request_swapi.Planets.NumOfAppearances(p.Name)
 	json.NewEncoder(w).Encode(p)
 }
 
 func DeletePlanet(w http.ResponseWriter, r *http.Request) {
 	defer timeTrack(time.Now(),"Delete planet")
 
-	p := Planet{}
+	p := db.Planet{}
 	var err error
 	vars := mux.Vars(r)
 	uuid, err := gocql.ParseUUID(vars["user_uuid"])
 	if err != nil {
-		w.WriteHeader(PreconditionFailed)
+		w.WriteHeader(http.StatusPreconditionFailed)
 		return
 	}
 	p.Id = uuid
 	err = p.FindById()
 	if err != nil {
 		if err.Error() == "not found" {
-			w.WriteHeader(NotFound)
+			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 	}
 	err = p.DeletePlanet()
 	if err != nil {
-			w.WriteHeader(PreconditionFailed)
+			w.WriteHeader(http.StatusNoContent)
 			return
 	}
 	json.NewEncoder(w).Encode(p)
 }
 
-const (
-	Insert int = 201
-	BadRequest int = 400
-	NotFound int = 404
-	Conflict int = 409
-	PreconditionFailed int = 412
-	InternalServerError int = 500
-)

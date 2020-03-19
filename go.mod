@@ -1,4 +1,4 @@
-module main
+module swapi
 
 go 1.13
 

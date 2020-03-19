@@ -1,6 +1,8 @@
-package main
+package db
 
-import "github.com/gocql/gocql"
+import (
+	"github.com/gocql/gocql"
+)
 
 type Planet struct {
 	Id      gocql.UUID `json:"id"`
