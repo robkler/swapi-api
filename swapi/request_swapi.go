@@ -30,7 +30,8 @@ func GetAllPlanets() {
 	Planets = MapPlanets{
 		planets: mapPlanets,
 	}
-	Get("https://swapi.co/api/Planets/")
+	Get("https://swapi.co/api/planets/")
+	log.Println(Planets)
 	log.Println("Got Planet")
 }
 

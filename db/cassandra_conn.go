@@ -19,5 +19,5 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Db Connected")
+	log.Println("PlanetDb Connected")
 }

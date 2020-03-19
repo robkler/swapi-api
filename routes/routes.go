@@ -7,7 +7,6 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
-	"swapi/db"
 	"swapi/swapi"
 	"time"
 )
@@ -26,11 +25,11 @@ func validate(s interface{}) error {
 	return validate.Struct(s)
 }
 
-func InsertPlanet(w http.ResponseWriter, r *http.Request) {
-	defer timeTrack(time.Now(),"Insert planet")
-	var planet db.Planet
+func (pr *PlanetRoutes) InsertPlanet(w http.ResponseWriter, r *http.Request) {
+	defer timeTrack(time.Now(), "Insert planet")
+	var p Planet
 	var err error
-	err = json.NewDecoder(r.Body).Decode(&planet)
+	err = json.NewDecoder(r.Body).Decode(&p)
 
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -40,7 +39,7 @@ func InsertPlanet(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	err = validate(planet)
+	err = validate(p)
 
 	if err != nil {
 		log.Println(err)
@@ -51,20 +50,20 @@ func InsertPlanet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = planet.FindByName()
+	err = pr.PlanetDb.FindByName(&p)
 	if err == nil {
 		w.WriteHeader(http.StatusConflict)
 		return
 	}
-	ok := request_swapi.Planets.ContainPlanet(planet.Name)
+	ok := request_swapi.Planets.ContainPlanet(p.Name)
 	if !ok {
 		w.WriteHeader(http.StatusPreconditionFailed)
 		json.NewEncoder(w).Encode(ErrorJson{
-			Error: "Non-existent planet",
+			Error: "Non-existent p",
 		}) //todo fix
 		return
 	}
-	err = planet.Insert()
+	err = pr.PlanetDb.Insert(&p)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -72,25 +71,24 @@ func InsertPlanet(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func GetPlanets(w http.ResponseWriter, r *http.Request) {
-	defer timeTrack(time.Now(),"Get Planet")
+func (pr *PlanetRoutes) GetPlanets(w http.ResponseWriter, r *http.Request) {
+	defer timeTrack(time.Now(), "Get Planet")
 
-	var planet db.Planet
-	planetList := planet.SelectAllPlanets()
+	planetList := pr.PlanetDb.SelectAllPlanets()
 	for _, ele := range planetList {
 		ele.FilmsAppears, _ = request_swapi.Planets.NumOfAppearances(ele.Name) //todo fix
 	}
 	json.NewEncoder(w).Encode(planetList)
 }
 
-func GetByName(w http.ResponseWriter, r *http.Request) {
-	defer timeTrack(time.Now(),"Get planet by name")
+func (pr *PlanetRoutes) GetByName(w http.ResponseWriter, r *http.Request) {
+	defer timeTrack(time.Now(), "Get planet by name")
 
-	p := db.Planet{}
+	p := Planet{}
 	var err error
 	vars := mux.Vars(r)
 	p.Name = vars["user_name"]
-	err = p.FindByName()
+	err = pr.PlanetDb.FindByName(&p)
 	if err != nil {
 		if err.Error() == "not found" {
 			w.WriteHeader(http.StatusNotFound)
@@ -101,10 +99,10 @@ func GetByName(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(p)
 }
 
-func GetById(w http.ResponseWriter, r *http.Request) {
-	defer timeTrack(time.Now(),"Get planet by id")
+func (pr *PlanetRoutes) GetById(w http.ResponseWriter, r *http.Request) {
+	defer timeTrack(time.Now(), "Get planet by id")
 
-	p := db.Planet{}
+	p := Planet{}
 	var err error
 	vars := mux.Vars(r)
 	uuid, err := gocql.ParseUUID(vars["user_uuid"])
@@ -113,7 +111,7 @@ func GetById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	p.Id = uuid
-	err = p.FindById()
+	err = pr.PlanetDb.FindById(&p)
 	if err != nil {
 		if err.Error() == "not found" {
 			w.WriteHeader(http.StatusNotFound)
@@ -124,10 +122,10 @@ func GetById(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(p)
 }
 
-func DeletePlanet(w http.ResponseWriter, r *http.Request) {
-	defer timeTrack(time.Now(),"Delete planet")
+func (pr *PlanetRoutes) DeletePlanet(w http.ResponseWriter, r *http.Request) {
+	defer timeTrack(time.Now(), "Delete planet")
 
-	p := db.Planet{}
+	p := Planet{}
 	var err error
 	vars := mux.Vars(r)
 	uuid, err := gocql.ParseUUID(vars["user_uuid"])
@@ -136,18 +134,18 @@ func DeletePlanet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	p.Id = uuid
-	err = p.FindById()
+	err = pr.PlanetDb.FindById(&p)
 	if err != nil {
 		if err.Error() == "not found" {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 	}
-	err = p.DeletePlanet()
+	err = pr.PlanetDb.DeletePlanet(&p)
 	if err != nil {
-			w.WriteHeader(http.StatusNoContent)
-			return
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
+	w.WriteHeader(http.StatusNoContent)
 	json.NewEncoder(w).Encode(p)
 }
-

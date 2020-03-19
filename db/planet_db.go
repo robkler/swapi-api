@@ -2,17 +2,12 @@ package db
 
 import (
 	"github.com/gocql/gocql"
+	"swapi/routes"
 )
 
-type Planet struct {
-	Id      gocql.UUID `json:"id"`
-	Name    string     `json:"name" validate:"required"`
-	Climate string     `json:"climate" validate:"required"`
-	Terrain string     `json:"terrain" validate:"required"`
-	FilmsAppears int   `json:"films_appears"`
-}
+type PlanetDb struct {}
 
-func (p *Planet) Insert() error {
+func (db *PlanetDb) Insert(p *routes.Planet) error {
 	id := gocql.TimeUUID()
 	if err := session.Query(`INSERT INTO swapi.planet (id, name, climate, terrain) VALUES (? ,? ,? ,? )`,
 		id, p.Name, p.Climate, p.Terrain).Consistency(
@@ -23,7 +18,7 @@ func (p *Planet) Insert() error {
 	return nil
 }
 
-func (p *Planet) FindById() error {
+func (db *PlanetDb) FindById(p *routes.Planet) error {
 	if err := session.Query(`SELECT name,climate,terrain FROM swapi.planet WHERE id = ?`,
 		p.Id.String()).Consistency(
 		gocql.One).Scan(&p.Name, &p.Climate, &p.Terrain); err != nil {
@@ -32,7 +27,7 @@ func (p *Planet) FindById() error {
 	return nil
 }
 
-func (p *Planet) FindByName() error {
+func (db *PlanetDb) FindByName(p *routes.Planet) error {
 	if err := session.Query(`SELECT id, climate, terrain FROM swapi.planet_by_name WHERE name = ?`,
 		p.Name).Consistency(
 		gocql.One).Scan(&p.Id, &p.Climate, &p.Terrain); err != nil {
@@ -41,13 +36,13 @@ func (p *Planet) FindByName() error {
 	return nil
 }
 
-func (p *Planet) SelectAllPlanets() []Planet {
-	var planetList []Planet
+func (db *PlanetDb) SelectAllPlanets() []routes.Planet {
+	var planetList []routes.Planet
 	m := map[string]interface{}{}
 	iterable := session.Query(`SELECT id, name,climate,terrain FROM swapi.planet_by_name`).Consistency(
 		gocql.One).Iter()
 	for iterable.MapScan(m) {
-		planetList = append(planetList, Planet{
+		planetList = append(planetList, routes.Planet{
 			Id:      m["id"].(gocql.UUID),
 			Name:    m["name"].(string),
 			Climate: m["climate"].(string),
@@ -58,6 +53,6 @@ func (p *Planet) SelectAllPlanets() []Planet {
 	return planetList
 }
 
-func (p *Planet) DeletePlanet() error {
+func (db *PlanetDb) DeletePlanet(p *routes.Planet) error {
 	return session.Query(`DELETE FROM swapi.planet WHERE id = ?`, p.Id).Consistency(gocql.One).Exec()
 }

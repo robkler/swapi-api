@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"swapi/db"
 	"swapi/environment"
 	"swapi/routes"
 	"swapi/swapi"
@@ -16,13 +17,18 @@ func init() {
 }
 
 func main() {
+	planetDb := db.PlanetDb{}
+	planetRoutes := routes.PlanetRoutes{
+		PlanetDb:&planetDb,
+	}
+
 	router := mux.NewRouter().StrictSlash(true)
 	router.Use(commonMiddleware)
-	router.HandleFunc("/planet", routes.InsertPlanet).Methods("POST")
-	router.HandleFunc("/planet", routes.GetPlanets).Methods("GET")
-	router.HandleFunc("/planet/{user_name}/name", routes.GetByName).Methods("GET")
-	router.HandleFunc("/planet/{user_uuid}/id", routes.GetById).Methods("GET")
-	router.HandleFunc("/planet/{user_uuid}", routes.DeletePlanet).Methods("DELETE")
+	router.HandleFunc("/planet", planetRoutes.InsertPlanet).Methods("POST")
+	router.HandleFunc("/planet", planetRoutes.GetPlanets).Methods("GET")
+	router.HandleFunc("/planet/{user_name}/name", planetRoutes.GetByName).Methods("GET")
+	router.HandleFunc("/planet/{user_uuid}/id", planetRoutes.GetById).Methods("GET")
+	router.HandleFunc("/planet/{user_uuid}", planetRoutes.DeletePlanet).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(":"+environment.ApiPort(), router))
 }
 
