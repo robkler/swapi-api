@@ -5,7 +5,7 @@ type SwapiTest struct {}
 type Error struct {}
 
 func (e *Error) Error() string {
-	return "Error"
+	return "not found"
 }
 
 func (s *SwapiTest) NumOfAppearances(planet string) (int, error) {
