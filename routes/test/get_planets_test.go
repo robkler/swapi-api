@@ -31,7 +31,7 @@ func TestGetPlanets(t *testing.T) {
 
 	}
 	ps := []routes.Planet{p}
-	selectAll := db.EXPECT().SelectAllPlanets().Return(ps, nil)
+	selectAll := db.EXPECT().SelectAllPlanets().Return(ps)
 	s.EXPECT().NumOfAppearances(p.Name).Return(1, nil).After(selectAll)
 	req, err := http.NewRequest("GET", "/", nil)
 	if err != nil {
@@ -55,34 +55,6 @@ func TestGetPlanets(t *testing.T) {
 	}
 }
 
-func TestGetPlanetsDbError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	db := mock.NewMockPlanetDbClient(ctrl)
-	s := mock.NewMockSwapiClient(ctrl)
-	pr := routes.PlanetRoutes{
-		PlanetDb: db,
-		Swapi:    s,
-	}
-	//p := routes.Planet{}
-	var ps []routes.Planet
-	db.EXPECT().SelectAllPlanets().Return(ps, errors.New(""))
-	req, err := http.NewRequest("GET", "/", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	req.Header.Set("Content-Type", "application/json")
-	gin.SetMode(gin.ReleaseMode)
-	r := gin.New()
-	r.GET("/", pr.GetPlanets)
-	rr := httptest.NewRecorder()
-	r.ServeHTTP(rr, req)
-
-	if status := rr.Code; status != http.StatusFailedDependency {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusFailedDependency)
-	}
-}
-
 
 func TestGetPlanetsSwapiErr(t *testing.T) {
 	ctrl := gomock.NewController(t)
@@ -98,7 +70,7 @@ func TestGetPlanetsSwapiErr(t *testing.T) {
 		Name:"Planet",
 	}
 	ps := []routes.Planet{p}
-	selectAll := db.EXPECT().SelectAllPlanets().Return(ps, nil)
+	selectAll := db.EXPECT().SelectAllPlanets().Return(ps)
 	s.EXPECT().NumOfAppearances(gomock.Any()).Return(1, errors.New("")).After(selectAll)
 	req, err := http.NewRequest("GET", "/", nil)
 	if err != nil {

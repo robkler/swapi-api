@@ -45,19 +45,16 @@ func (pr *PlanetRoutes) InsertPlanet(c *gin.Context) {
 	}
 
 	_, err = pr.PlanetDb.FindByName(planet.Name)
-	if err != nil {
-		if err.Error() == "not found" {
-			c.AbortWithStatus(http.StatusConflict)
-			return
-		}
+	if err == nil {
+		c.AbortWithStatus(http.StatusConflict)
+		return
+	}
+	if  err.Error() != "not found"{
 		c.AbortWithStatus(http.StatusFailedDependency)
 		return
 	}
-	ok, err := pr.Swapi.ContainPlanet(planet.Name)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusFailedDependency, gin.H{"error": err.Error()})
-		return
-	}
+	ok := pr.Swapi.ContainPlanet(planet.Name)
+
 	if !ok {
 		c.AbortWithStatusJSON(http.StatusPreconditionFailed, gin.H{"error": "Non-existent planet"})
 		return
@@ -72,12 +69,9 @@ func (pr *PlanetRoutes) InsertPlanet(c *gin.Context) {
 
 func (pr *PlanetRoutes) GetPlanets(c *gin.Context) {
 	defer timeTrack(time.Now(), "get Planet")
+	var err error
+	planetList := pr.PlanetDb.SelectAllPlanets()
 
-	planetList, err := pr.PlanetDb.SelectAllPlanets()
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusFailedDependency, gin.H{"error": err.Error()})
-		return
-	}
 	var newPlanetList []Planet
 	for _, ele := range planetList {
 		newEle := ele

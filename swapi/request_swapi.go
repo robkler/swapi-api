@@ -26,7 +26,7 @@ func (m *MapPlanets) GetAllPlanets() {
 	log.Println("Getting Planet")
 	mapPlanets := make(map[string]Planet)
 	m.planets =	mapPlanets
-	m.get("https://swapi.co/api/planets/")
+	m.get("http://swapi.dev/api/planets/")
 	log.Println(m.planets)
 	log.Println("Got Planet")
 }

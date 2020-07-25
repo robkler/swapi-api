@@ -79,12 +79,11 @@ func (mr *MockPlanetDbMockRecorder) FindByName(name interface{}) *gomock.Call {
 }
 
 // SelectAllPlanets mocks base method
-func (m *MockPlanetDb) SelectAllPlanets() ([]routes.Planet, error) {
+func (m *MockPlanetDb) SelectAllPlanets() []routes.Planet {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SelectAllPlanets")
 	ret0, _ := ret[0].([]routes.Planet)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	return ret0
 }
 
 // SelectAllPlanets indicates an expected call of SelectAllPlanets
@@ -146,12 +145,11 @@ func (mr *MockSwapiMockRecorder) NumOfAppearances(planet interface{}) *gomock.Ca
 }
 
 // ContainPlanet mocks base method
-func (m *MockSwapi) ContainPlanet(planet string) (bool, error) {
+func (m *MockSwapi) ContainPlanet(planet string) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ContainPlanet", planet)
 	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	return ret0
 }
 
 // ContainPlanet indicates an expected call of ContainPlanet

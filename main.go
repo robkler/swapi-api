@@ -1,7 +1,11 @@
 package main
 
 import (
+	"github.com/gin-gonic/gin"
 	"log"
+	"swapi/db"
+	"swapi/routes"
+	request_swapi "swapi/swapi"
 )
 
 
@@ -10,21 +14,24 @@ func init() {
 }
 
 func main() {
-	//planetDb := db.PlanetDb{}
-	//mapPlanets := request_swapi.MapPlanets{}
-	//mapPlanets.GetAllPlanets()
-	//planetRoutes := routes.PlanetRoutes{
-	//	PlanetDb:&planetDb,
-	//	Swapi: &mapPlanets,
-	//}
-	//
-	//router := mux.NewRouter().StrictSlash(true)
-	//router.Use(commonMiddleware)
-	//router.HandleFunc("/planet", planetRoutes.InsertPlanet).Methods("POST")
-	//router.HandleFunc("/planet", planetRoutes.GetPlanets).Methods("GET")
-	//router.HandleFunc("/planet/{user_name}/name", planetRoutes.GetByName).Methods("GET")
-	//router.HandleFunc("/planet/{user_uuid}/id", planetRoutes.GetById).Methods("GET")
-	//router.HandleFunc("/planet/{user_uuid}", planetRoutes.DeletePlanet).Methods("DELETE")
-	//log.Fatal(http.ListenAndServe(":"+environment.ApiPort(), router))
+	planetDb := db.PlanetDb{}
+	mapPlanets := request_swapi.MapPlanets{}
+	mapPlanets.GetAllPlanets()
+	planetRoutes := routes.PlanetRoutes{
+		PlanetDb:&planetDb,
+		Swapi: &mapPlanets,
+	}
+	gin.SetMode(gin.ReleaseMode)
+
+	r := gin.New()
+	r.POST("/planet", planetRoutes.InsertPlanet)
+	r.GET("/planet", planetRoutes.GetPlanets)
+	r.GET("/planet/{user_name}/name", planetRoutes.GetByName)
+	r.GET("/planet/{user_uuid}/id", planetRoutes.GetById)
+	r.DELETE("/planet/{user_uuid}", planetRoutes.DeletePlanet)
+	err := r.Run("localhost:8080")
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 

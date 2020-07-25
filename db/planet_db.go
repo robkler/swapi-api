@@ -5,42 +5,45 @@ import (
 	"swapi/routes"
 )
 
-type PlanetDb struct {}
+type PlanetDb struct{}
 
 func (db *PlanetDb) Insert(p *routes.Planet) error {
 	id := gocql.TimeUUID()
 	if err := session.Query(`INSERT INTO swapi.planet (id, name, climate, terrain) VALUES (? ,? ,? ,? )`,
 		id, p.Name, p.Climate, p.Terrain).Consistency(
-		gocql.One).Exec(); err != nil {
+		gocql.Quorum).Exec(); err != nil {
 		return err
 	}
 	p.Id = id
 	return nil
 }
 
-func (db *PlanetDb) FindById(p *routes.Planet) error {
+func (db *PlanetDb) FindById(id gocql.UUID) (routes.Planet, error) {
+	p := routes.Planet{Id: id}
 	if err := session.Query(`SELECT name,climate,terrain FROM swapi.planet WHERE id = ?`,
 		p.Id.String()).Consistency(
-		gocql.One).Scan(&p.Name, &p.Climate, &p.Terrain); err != nil {
-		return err
+		gocql.Quorum).Scan(&p.Name, &p.Climate, &p.Terrain); err != nil {
+		return p, err
 	}
-	return nil
+	return p, nil
 }
 
-func (db *PlanetDb) FindByName(p *routes.Planet) error {
+func (db *PlanetDb) FindByName(name string) (routes.Planet, error) {
+	p := routes.Planet{Name: name}
 	if err := session.Query(`SELECT id, climate, terrain FROM swapi.planet_by_name WHERE name = ?`,
 		p.Name).Consistency(
-		gocql.One).Scan(&p.Id, &p.Climate, &p.Terrain); err != nil {
-		return err
+		gocql.Quorum).Scan(&p.Id, &p.Climate, &p.Terrain); err != nil {
+		return p, err
 	}
-	return nil
+	return p, nil
 }
 
-func (db *PlanetDb) SelectAllPlanets() []routes.Planet {
+func (db *PlanetDb) SelectAllPlanets() []routes.Planet{
 	var planetList []routes.Planet
 	m := map[string]interface{}{}
 	iterable := session.Query(`SELECT id, name,climate,terrain FROM swapi.planet_by_name`).Consistency(
-		gocql.One).Iter()
+		gocql.Quorum).Iter()
+
 	for iterable.MapScan(m) {
 		planetList = append(planetList, routes.Planet{
 			Id:      m["id"].(gocql.UUID),
@@ -54,5 +57,5 @@ func (db *PlanetDb) SelectAllPlanets() []routes.Planet {
 }
 
 func (db *PlanetDb) DeletePlanet(p *routes.Planet) error {
-	return session.Query(`DELETE FROM swapi.planet WHERE id = ?`, p.Id).Consistency(gocql.One).Exec()
+	return session.Query(`DELETE FROM swapi.planet WHERE id = ?`, p.Id).Consistency(gocql.Quorum).Exec()
 }
