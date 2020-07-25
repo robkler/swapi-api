@@ -1,6 +1,7 @@
 package routes
 
 import "github.com/gocql/gocql"
+//go:generate  go run github.com/golang/mock/mockgen  -package mock -destination=./mock/planet_client.go -source=$GOFILE
 
 type Planet struct {
 	Id      gocql.UUID `json:"id"`
@@ -17,13 +18,13 @@ type PlanetRoutes struct {
 
 type PlanetDb interface {
 	Insert(p *Planet) error
-	FindById(p *Planet) error
-	FindByName(p *Planet) error
-	SelectAllPlanets() []Planet
+	FindById(id gocql.UUID)  (Planet, error)
+	FindByName(name string) (Planet, error)
+	SelectAllPlanets() ([]Planet,error)
 	DeletePlanet(p *Planet) error
 }
 
 type Swapi interface {
 	NumOfAppearances(planet string) (int, error)
-	ContainPlanet(planet string) bool
+	ContainPlanet(planet string) (bool,error)
 }

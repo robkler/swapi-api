@@ -1,10 +1,9 @@
 package routes
 
 import (
-	"encoding/json"
+	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/gocql/gocql"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"time"
@@ -19,132 +18,153 @@ type ErrorJson struct {
 	Error string `json:"error"`
 }
 
+type GetPlanets struct {
+	Planets []Planet `json:"planets" validate:"required"`
+}
+
 func validate(s interface{}) error {
 	validate := validator.New()
 	return validate.Struct(s)
 }
 
-func (pr *PlanetRoutes) InsertPlanet(w http.ResponseWriter, r *http.Request) {
+func (pr *PlanetRoutes) InsertPlanet(c *gin.Context) {
 	defer timeTrack(time.Now(), "Insert planet")
-	var p Planet
-	var err error
-	err = json.NewDecoder(r.Body).Decode(&p)
+	var planet Planet
 
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(ErrorJson{
-			Error: err.Error(),
-		})
-		log.Println(err)
+	if err := c.BindJSON(&planet); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err = validate(p)
+
+	err := validate(planet)
 
 	if err != nil {
 		log.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(ErrorJson{
-			Error: err.Error(),
-		})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	err = pr.PlanetDb.FindByName(&p)
-	if err == nil {
-		w.WriteHeader(http.StatusConflict)
+	_, err = pr.PlanetDb.FindByName(planet.Name)
+	if err != nil {
+		if err.Error() == "not found" {
+			c.AbortWithStatus(http.StatusConflict)
+			return
+		}
+		c.AbortWithStatus(http.StatusFailedDependency)
 		return
 	}
-	ok := pr.Swapi.ContainPlanet(p.Name)
+	ok, err := pr.Swapi.ContainPlanet(planet.Name)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusFailedDependency, gin.H{"error": err.Error()})
+		return
+	}
 	if !ok {
-		w.WriteHeader(http.StatusPreconditionFailed)
-		json.NewEncoder(w).Encode(ErrorJson{
-			Error: "Non-existent p",
-		}) //todo fix
+		c.AbortWithStatusJSON(http.StatusPreconditionFailed, gin.H{"error": "Non-existent planet"})
 		return
 	}
-	err = pr.PlanetDb.Insert(&p)
+	err = pr.PlanetDb.Insert(&planet)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		c.AbortWithStatusJSON(http.StatusFailedDependency, gin.H{"error": err.Error()})
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
+	c.Status(http.StatusCreated)
 }
 
-func (pr *PlanetRoutes) GetPlanets(w http.ResponseWriter, r *http.Request) {
+func (pr *PlanetRoutes) GetPlanets(c *gin.Context) {
 	defer timeTrack(time.Now(), "get Planet")
 
-	planetList := pr.PlanetDb.SelectAllPlanets()
-	for _, ele := range planetList {
-		ele.FilmsAppears, _ = pr.Swapi.NumOfAppearances(ele.Name) //todo fix
+	planetList, err := pr.PlanetDb.SelectAllPlanets()
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusFailedDependency, gin.H{"error": err.Error()})
+		return
 	}
-	json.NewEncoder(w).Encode(planetList)
+	var newPlanetList []Planet
+	for _, ele := range planetList {
+		newEle := ele
+		newEle.FilmsAppears, err = pr.Swapi.NumOfAppearances(ele.Name)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusFailedDependency, gin.H{"error": err.Error()})
+			return
+		}
+		newPlanetList = append(newPlanetList, newEle)
+	}
+	planets := GetPlanets{newPlanetList}
+	c.JSON(http.StatusOK, planets)
 }
 
-func (pr *PlanetRoutes) GetByName(w http.ResponseWriter, r *http.Request) {
+func (pr *PlanetRoutes) GetByName(c *gin.Context) {
 	defer timeTrack(time.Now(), "get planet by name")
 
-	p := Planet{}
 	var err error
-	vars := mux.Vars(r)
-	p.Name = vars["user_name"]
-	err = pr.PlanetDb.FindByName(&p)
+	name := c.Param("user_name")
+	planet, err := pr.PlanetDb.FindByName(name)
 	if err != nil {
 		if err.Error() == "not found" {
-			w.WriteHeader(http.StatusNotFound)
+			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
+		c.AbortWithStatusJSON(http.StatusFailedDependency, gin.H{"error": err.Error()})
+		return
 	}
-	p.FilmsAppears, _ = pr.Swapi.NumOfAppearances(p.Name)
-	json.NewEncoder(w).Encode(p)
+
+	planet.FilmsAppears, err = pr.Swapi.NumOfAppearances(planet.Name)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusFailedDependency, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, planet)
 }
 
-func (pr *PlanetRoutes) GetById(w http.ResponseWriter, r *http.Request) {
+func (pr *PlanetRoutes) GetById(c *gin.Context) {
 	defer timeTrack(time.Now(), "get planet by id")
 
-	p := Planet{}
 	var err error
-	vars := mux.Vars(r)
-	uuid, err := gocql.ParseUUID(vars["user_uuid"])
+	uuid, err := gocql.ParseUUID(c.Param("user_uuid"))
+
 	if err != nil {
-		w.WriteHeader(http.StatusPreconditionFailed)
+		c.AbortWithStatusJSON(http.StatusPreconditionFailed, gin.H{"error": err.Error()})
 		return
 	}
-	p.Id = uuid
-	err = pr.PlanetDb.FindById(&p)
+	planet, err := pr.PlanetDb.FindById(uuid)
 	if err != nil {
 		if err.Error() == "not found" {
-			w.WriteHeader(http.StatusNotFound)
+			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
+		c.AbortWithStatusJSON(http.StatusFailedDependency, gin.H{"error": err.Error()})
+		return
+
 	}
-	p.FilmsAppears, _ = pr.Swapi.NumOfAppearances(p.Name)
-	json.NewEncoder(w).Encode(p)
+	planet.FilmsAppears, err = pr.Swapi.NumOfAppearances(planet.Name)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusFailedDependency, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, planet)
 }
 
-func (pr *PlanetRoutes) DeletePlanet(w http.ResponseWriter, r *http.Request) {
+func (pr *PlanetRoutes) DeletePlanet(c *gin.Context) {
 	defer timeTrack(time.Now(), "Delete planet")
 
-	p := Planet{}
 	var err error
-	vars := mux.Vars(r)
-	uuid, err := gocql.ParseUUID(vars["user_uuid"])
+	uuid, err := gocql.ParseUUID(c.Param("user_uuid"))
 	if err != nil {
-		w.WriteHeader(http.StatusPreconditionFailed)
+		c.AbortWithStatusJSON(http.StatusPreconditionFailed, gin.H{"error": err.Error()})
 		return
 	}
-	p.Id = uuid
-	err = pr.PlanetDb.FindById(&p)
+	planet, err := pr.PlanetDb.FindById(uuid)
 	if err != nil {
 		if err.Error() == "not found" {
-			w.WriteHeader(http.StatusNotFound)
+			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
-	}
-	err = pr.PlanetDb.DeletePlanet(&p)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		c.AbortWithStatusJSON(http.StatusFailedDependency, gin.H{"error": err.Error()})
 		return
 	}
-	w.WriteHeader(http.StatusNoContent)
-	json.NewEncoder(w).Encode(p)
+	err = pr.PlanetDb.DeletePlanet(&planet)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusFailedDependency, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusNoContent, planet)
 }
