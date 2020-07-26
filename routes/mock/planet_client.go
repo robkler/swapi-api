@@ -79,17 +79,18 @@ func (mr *MockPlanetDbMockRecorder) FindByName(name interface{}) *gomock.Call {
 }
 
 // SelectAllPlanets mocks base method
-func (m *MockPlanetDb) SelectAllPlanets() []routes.Planet {
+func (m *MockPlanetDb) SelectAllPlanets(state []byte) ([]routes.Planet, []byte) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SelectAllPlanets")
+	ret := m.ctrl.Call(m, "SelectAllPlanets", state)
 	ret0, _ := ret[0].([]routes.Planet)
-	return ret0
+	ret1, _ := ret[1].([]byte)
+	return ret0, ret1
 }
 
 // SelectAllPlanets indicates an expected call of SelectAllPlanets
-func (mr *MockPlanetDbMockRecorder) SelectAllPlanets() *gomock.Call {
+func (mr *MockPlanetDbMockRecorder) SelectAllPlanets(state interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectAllPlanets", reflect.TypeOf((*MockPlanetDb)(nil).SelectAllPlanets))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectAllPlanets", reflect.TypeOf((*MockPlanetDb)(nil).SelectAllPlanets), state)
 }
 
 // DeletePlanet mocks base method

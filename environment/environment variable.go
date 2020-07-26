@@ -1,21 +1,33 @@
 package environment
 
-import "os"
+import (
+	"os"
+)
+
+type CassandraConfig struct {
+	CassandraHost string
+	CassandraUsername string
+	CassandraPassword string
+}
+
+var cassandraConfig = CassandraConfig{}
+func init() {
+	cassandraConfig.CassandraHost = os.Getenv("CASSANDRA_HOST")
+	cassandraConfig.CassandraUsername = os.Getenv("CASSANDRA_USERNAME")
+	cassandraConfig.CassandraPassword = os.Getenv("CASSANDRA_PASSWORD")
+}
 
 var apiPort  = os.Getenv("API_PORT")
-var cassandraHost  = os.Getenv("CASSANDRA_HOST")
-var cassandraUserName = os.Getenv("CASSANDRA_USERNAME")
-var cassandraPassword = os.Getenv("CASSANDRA_PASSWORD")
 
 func ApiPort() string {
 	return apiPort
 }
 func CassandraHost() string {
-	return cassandraHost
+	return cassandraConfig.CassandraHost
 }
 func CassandraUserName() string {
-	return cassandraUserName
+	return cassandraConfig.CassandraUsername
 }
 func CassandraPassword() string {
-	return cassandraPassword
+	return cassandraConfig.CassandraPassword
 }

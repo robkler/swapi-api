@@ -6,7 +6,6 @@ import (
 )
 
 type PlanetDb struct{}
-
 func (db *PlanetDb) Insert(p *routes.Planet) error {
 	id := gocql.TimeUUID()
 	if err := session.Query(`INSERT INTO swapi.planet (id, name, climate, terrain) VALUES (? ,? ,? ,? )`,
@@ -38,13 +37,14 @@ func (db *PlanetDb) FindByName(name string) (routes.Planet, error) {
 	return p, nil
 }
 
-func (db *PlanetDb) SelectAllPlanets() []routes.Planet{
+func (db *PlanetDb) SelectAllPlanets(state []byte) ([]routes.Planet, []byte){
 	var planetList []routes.Planet
 	m := map[string]interface{}{}
-	iterable := session.Query(`SELECT id, name,climate,terrain FROM swapi.planet_by_name`).Consistency(
-		gocql.Quorum).Iter()
+	i := session.Query(`SELECT id, name,climate,terrain FROM swapi.planet_by_name`).Consistency(
+		gocql.Quorum).PageSize(10).PageState(state).Iter()
 
-	for iterable.MapScan(m) {
+	s := i.PageState()
+	for i.MapScan(m) {
 		planetList = append(planetList, routes.Planet{
 			Id:      m["id"].(gocql.UUID),
 			Name:    m["name"].(string),
@@ -53,7 +53,7 @@ func (db *PlanetDb) SelectAllPlanets() []routes.Planet{
 		})
 		m = map[string]interface{}{}
 	}
-	return planetList
+	return planetList , s
 }
 
 func (db *PlanetDb) DeletePlanet(p *routes.Planet) error {

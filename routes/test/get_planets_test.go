@@ -31,7 +31,7 @@ func TestGetPlanets(t *testing.T) {
 
 	}
 	ps := []routes.Planet{p}
-	selectAll := db.EXPECT().SelectAllPlanets().Return(ps)
+	selectAll := db.EXPECT().SelectAllPlanets(gomock.Any()).Return(ps,nil)
 	s.EXPECT().NumOfAppearances(p.Name).Return(1, nil).After(selectAll)
 	req, err := http.NewRequest("GET", "/", nil)
 	if err != nil {
@@ -70,7 +70,7 @@ func TestGetPlanetsSwapiErr(t *testing.T) {
 		Name:"Planet",
 	}
 	ps := []routes.Planet{p}
-	selectAll := db.EXPECT().SelectAllPlanets().Return(ps)
+	selectAll := db.EXPECT().SelectAllPlanets(gomock.Any()).Return(ps,nil)
 	s.EXPECT().NumOfAppearances(gomock.Any()).Return(1, errors.New("")).After(selectAll)
 	req, err := http.NewRequest("GET", "/", nil)
 	if err != nil {

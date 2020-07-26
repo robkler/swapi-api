@@ -21,7 +21,7 @@ type PlanetDb interface {
 	Insert(p *Planet) error
 	FindById(id gocql.UUID) (Planet, error)
 	FindByName(name string) (Planet, error)
-	SelectAllPlanets() []Planet
+	SelectAllPlanets(state []byte) ([]Planet,[]byte)
 	DeletePlanet(p *Planet) error
 }
 

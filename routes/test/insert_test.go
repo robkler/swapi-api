@@ -21,7 +21,7 @@ func TestSuccess(t *testing.T) {
 		Swapi:    s,
 	}
 	p := routes.Planet{}
-	findByName := db.EXPECT().FindByName("Name").Return(p, nil)
+	findByName := db.EXPECT().FindByName("Name").Return(p, errors.New("not found"))
 	contain := s.EXPECT().ContainPlanet("Name").Return(true).After(findByName)
 	db.EXPECT().Insert(gomock.Any()).Return(nil).After(contain)
 	var jsonStr = []byte(`{
@@ -117,7 +117,7 @@ func TestPlanetDontExist(t *testing.T) {
 		Swapi:    s,
 	}
 	p := routes.Planet{}
-	findByName := db.EXPECT().FindByName("Name").Return(p, nil)
+	findByName := db.EXPECT().FindByName("Name").Return(p, errors.New("not found"))
 	s.EXPECT().ContainPlanet("Name").Return(false).After(findByName)
 
 	var jsonStr = []byte(`{
