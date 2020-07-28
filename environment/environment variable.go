@@ -22,12 +22,6 @@ var apiPort  = os.Getenv("API_PORT")
 func ApiPort() string {
 	return apiPort
 }
-func CassandraHost() string {
-	return cassandraConfig.CassandraHost
-}
-func CassandraUserName() string {
-	return cassandraConfig.CassandraUsername
-}
-func CassandraPassword() string {
-	return cassandraConfig.CassandraPassword
+func NewCassandraConfig() CassandraConfig {
+	return cassandraConfig
 }

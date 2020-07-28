@@ -14,8 +14,8 @@ import (
 
 func TestDelete(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	db := mock.NewMockPlanetDbClient(ctrl)
-	s := mock.NewMockSwapiClient(ctrl)
+	db := mock.NewMockPlanetDb(ctrl)
+	s := mock.NewMockSwapi(ctrl)
 	pr := routes.PlanetRoutes{
 		PlanetDb: db,
 		Swapi:    s,
@@ -46,8 +46,8 @@ func TestDelete(t *testing.T) {
 
 func TestDeleteNotFound(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	db := mock.NewMockPlanetDbClient(ctrl)
-	s := mock.NewMockSwapiClient(ctrl)
+	db := mock.NewMockPlanetDb(ctrl)
+	s := mock.NewMockSwapi(ctrl)
 	pr := routes.PlanetRoutes{
 		PlanetDb: db,
 		Swapi:    s,
@@ -77,8 +77,8 @@ func TestDeleteNotFound(t *testing.T) {
 
 func TestDeleteStatusFailed(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	db := mock.NewMockPlanetDbClient(ctrl)
-	s := mock.NewMockSwapiClient(ctrl)
+	db := mock.NewMockPlanetDb(ctrl)
+	s := mock.NewMockSwapi(ctrl)
 	pr := routes.PlanetRoutes{
 		PlanetDb: db,
 		Swapi:    s,

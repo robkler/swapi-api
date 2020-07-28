@@ -2,13 +2,17 @@ package db
 
 import (
 	"github.com/gocql/gocql"
+	"swapi/environment"
 	"swapi/routes"
 )
 
-type PlanetDb struct{}
+type PlanetDb struct{
+	Config  environment.CassandraConfig
+	session *gocql.Session
+}
 func (db *PlanetDb) Insert(p *routes.Planet) error {
 	id := gocql.TimeUUID()
-	if err := session.Query(`INSERT INTO swapi.planet (id, name, climate, terrain) VALUES (? ,? ,? ,? )`,
+	if err := db.session.Query(`INSERT INTO swapi.planet (id, name, climate, terrain) VALUES (? ,? ,? ,? )`,
 		id, p.Name, p.Climate, p.Terrain).Consistency(
 		gocql.Quorum).Exec(); err != nil {
 		return err
@@ -19,7 +23,7 @@ func (db *PlanetDb) Insert(p *routes.Planet) error {
 
 func (db *PlanetDb) FindById(id gocql.UUID) (routes.Planet, error) {
 	p := routes.Planet{Id: id}
-	if err := session.Query(`SELECT name,climate,terrain FROM swapi.planet WHERE id = ?`,
+	if err := db.session.Query(`SELECT name,climate,terrain FROM swapi.planet WHERE id = ?`,
 		p.Id.String()).Consistency(
 		gocql.Quorum).Scan(&p.Name, &p.Climate, &p.Terrain); err != nil {
 		return p, err
@@ -29,7 +33,7 @@ func (db *PlanetDb) FindById(id gocql.UUID) (routes.Planet, error) {
 
 func (db *PlanetDb) FindByName(name string) (routes.Planet, error) {
 	p := routes.Planet{Name: name}
-	if err := session.Query(`SELECT id, climate, terrain FROM swapi.planet_by_name WHERE name = ?`,
+	if err := db.session.Query(`SELECT id, climate, terrain FROM swapi.planet_by_name WHERE name = ?`,
 		p.Name).Consistency(
 		gocql.Quorum).Scan(&p.Id, &p.Climate, &p.Terrain); err != nil {
 		return p, err
@@ -40,7 +44,7 @@ func (db *PlanetDb) FindByName(name string) (routes.Planet, error) {
 func (db *PlanetDb) SelectAllPlanets(state []byte) ([]routes.Planet, []byte){
 	var planetList []routes.Planet
 	m := map[string]interface{}{}
-	i := session.Query(`SELECT id, name,climate,terrain FROM swapi.planet_by_name`).Consistency(
+	i := db.session.Query(`SELECT id, name,climate,terrain FROM swapi.planet_by_name`).Consistency(
 		gocql.Quorum).PageSize(10).PageState(state).Iter()
 
 	s := i.PageState()
@@ -57,5 +61,5 @@ func (db *PlanetDb) SelectAllPlanets(state []byte) ([]routes.Planet, []byte){
 }
 
 func (db *PlanetDb) DeletePlanet(p *routes.Planet) error {
-	return session.Query(`DELETE FROM swapi.planet WHERE id = ?`, p.Id).Consistency(gocql.Quorum).Exec()
+	return db.session.Query(`DELETE FROM swapi.planet WHERE id = ?`, p.Id).Consistency(gocql.Quorum).Exec()
 }

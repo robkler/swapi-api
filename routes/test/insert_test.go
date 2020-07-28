@@ -14,8 +14,8 @@ import (
 
 func TestSuccess(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	db := mock.NewMockPlanetDbClient(ctrl)
-	s := mock.NewMockSwapiClient(ctrl)
+	db := mock.NewMockPlanetDb(ctrl)
+	s := mock.NewMockSwapi(ctrl)
 	pr := routes.PlanetRoutes{
 		PlanetDb: db,
 		Swapi:    s,
@@ -50,8 +50,8 @@ func TestSuccess(t *testing.T) {
 
 func TestWrongJson(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	db := mock.NewMockPlanetDbClient(ctrl)
-	s := mock.NewMockSwapiClient(ctrl)
+	db := mock.NewMockPlanetDb(ctrl)
+	s := mock.NewMockSwapi(ctrl)
 	pr := routes.PlanetRoutes{
 		PlanetDb: db,
 		Swapi:    s,
@@ -80,8 +80,8 @@ func TestWrongJson(t *testing.T) {
 
 func TestJsonIncomplete(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	db := mock.NewMockPlanetDbClient(ctrl)
-	s := mock.NewMockSwapiClient(ctrl)
+	db := mock.NewMockPlanetDb(ctrl)
+	s := mock.NewMockSwapi(ctrl)
 	pr := routes.PlanetRoutes{
 		PlanetDb: db,
 		Swapi:    s,
@@ -110,8 +110,8 @@ func TestJsonIncomplete(t *testing.T) {
 
 func TestPlanetDontExist(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	db := mock.NewMockPlanetDbClient(ctrl)
-	s := mock.NewMockSwapiClient(ctrl)
+	db := mock.NewMockPlanetDb(ctrl)
+	s := mock.NewMockSwapi(ctrl)
 	pr := routes.PlanetRoutes{
 		PlanetDb: db,
 		Swapi:    s,
@@ -145,8 +145,8 @@ func TestPlanetDontExist(t *testing.T) {
 
 func TestPlanetDbErr(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	db := mock.NewMockPlanetDbClient(ctrl)
-	s := mock.NewMockSwapiClient(ctrl)
+	db := mock.NewMockPlanetDb(ctrl)
+	s := mock.NewMockSwapi(ctrl)
 	pr := routes.PlanetRoutes{
 		PlanetDb: db,
 		Swapi:    s,

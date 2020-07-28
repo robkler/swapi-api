@@ -3,19 +3,17 @@ package db
 import (
 	"github.com/gocql/gocql"
 	"log"
-	"swapi/environment"
 )
 
-var session *gocql.Session
 
-func init() {
+func (db *PlanetDb) Init() {
 	var err error
-	cluster := gocql.NewCluster(environment.CassandraHost())
+	cluster := gocql.NewCluster(db.Config.CassandraHost)
 	cluster.Authenticator = gocql.PasswordAuthenticator{
-		Username: environment.CassandraUserName(),
-		Password: environment.CassandraPassword(),
+		Username: db.Config.CassandraUsername,
+		Password: db.Config.CassandraPassword,
 	}
-	session, err = cluster.CreateSession()
+	db.session, err = cluster.CreateSession()
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"swapi/db"
+	"swapi/environment"
 	"swapi/routes"
 	request_swapi "swapi/swapi"
 	"time"
@@ -12,7 +13,11 @@ import (
 type Server struct{}
 
 func (s *Server) New() *gin.Engine {
-	planetDb := db.PlanetDb{}
+	config := environment.NewCassandraConfig()
+	planetDb := db.PlanetDb{
+		Config: config,
+	}
+	planetDb.Init()
 	mapPlanets := request_swapi.MapPlanets{}
 	mapPlanets.GetAllPlanets()
 	planetRoutes := routes.PlanetRoutes{

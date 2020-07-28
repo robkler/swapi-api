@@ -158,15 +158,3 @@ func (mr *MockSwapiMockRecorder) ContainPlanet(planet interface{}) *gomock.Call 
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainPlanet", reflect.TypeOf((*MockSwapi)(nil).ContainPlanet), planet)
 }
-
-func NewMockPlanetDbClient(ctrl *gomock.Controller) *MockPlanetDb {
-	mock := &MockPlanetDb{ctrl: ctrl}
-	mock.recorder = &MockPlanetDbMockRecorder{mock}
-	return mock
-}
-
-func NewMockSwapiClient(ctrl *gomock.Controller) *MockSwapi {
-	mock := &MockSwapi{ctrl: ctrl}
-	mock.recorder = &MockSwapiMockRecorder{mock}
-	return mock
-}
