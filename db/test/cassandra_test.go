@@ -10,9 +10,9 @@ import (
 
 func TestCassandra(t *testing.T) {
 	config := environment.CassandraConfig{
-		CassandraHost:     "localhost",
-		CassandraUsername: "Cassandra",
-		CassandraPassword: "Cassandra",
+		CassandraHost:     "192.13.131.0",
+		CassandraUsername: "cassandra",
+		CassandraPassword: "cassandra",
 	}
 	planetDb := db.PlanetDb{Config: config}
 	planetDb.Init()

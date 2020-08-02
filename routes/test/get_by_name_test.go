@@ -15,7 +15,7 @@ import (
 func TestGetPlanetByName(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	db := mock.NewMockPlanetDb(ctrl)
-	s := mock.NewMockPlanetDb(ctrl)
+	s := mock.NewMockSwapi(ctrl)
 	pr := routes.PlanetRoutes{
 		PlanetDb: db,
 		Swapi:    s,
@@ -44,7 +44,7 @@ func TestGetPlanetByName(t *testing.T) {
 func TestGetPlanetByNameNotFound(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	db := mock.NewMockPlanetDb(ctrl)
-	s := mock.NewMockPlanetDb(ctrl)
+	s := mock.NewMockSwapi(ctrl)
 	pr := routes.PlanetRoutes{
 		PlanetDb: db,
 		Swapi:    s,
@@ -74,7 +74,7 @@ func TestGetPlanetByNameNotFound(t *testing.T) {
 func TestGetPlanetByNameDataBaseError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	db := mock.NewMockPlanetDb(ctrl)
-	s := mock.NewMockPlanetDb(ctrl)
+	s := mock.NewMockSwapi(ctrl)
 	pr := routes.PlanetRoutes{
 		PlanetDb: db,
 		Swapi:    s,
@@ -101,7 +101,7 @@ func TestGetPlanetByNameDataBaseError(t *testing.T) {
 func TestGetPlanetByNameSwapiErr(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	db := mock.NewMockPlanetDb(ctrl)
-	s := mock.NewMockPlanetDb(ctrl)
+	s := mock.NewMockSwapi(ctrl)
 	pr := routes.PlanetRoutes{
 		PlanetDb: db,
 		Swapi:    s,

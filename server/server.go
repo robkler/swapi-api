@@ -39,10 +39,10 @@ func (s *Server) New() *gin.Engine {
 }
 
 func (s *Server) loggerMiddleware(c *gin.Context) {
-	logrus.Info("%s %s", c.Request.Method, c.FullPath())
+	logrus.WithField("Method",c.Request.Method).WithField("Path",c.FullPath()).Info("Request received")
 	startTime := time.Now()
 	c.Next()
-	logrus.WithField("Status", c.Writer.Status()).WithField("Time Took", time.Since(startTime)).Info("%s %s", c.Request.Method, c.FullPath())
+	logrus.WithField("Method",c.Request.Method).WithField("Path",c.FullPath()).WithField("Status", c.Writer.Status()).WithField("Time Took", time.Since(startTime)).Info("Request Finished")
 
 }
 func (s *Server) logger() gin.HandlerFunc {
