@@ -1,12 +1,12 @@
 version: '3'
 services:
-  cassandra2:
+  cassandra:
     image: 'docker.io/bitnami/cassandra:3-debian-10'
     ports:
       - '7000:7000'
       - '9042:9042'
     volumes:
-      - './cassandra/cassandra.cql:/docker-entrypoint-initdb.d/script.cql'
+      - './cassandra/script.cql:/docker-entrypoint-initdb.d/script.cql'
     environment:
       - CASSANDRA_PASSWORD=cassandra
       - CASSANDRA_USER=cassandra
@@ -14,13 +14,14 @@ services:
   swapi-api:
     image: 'robkler/swapi-api:latest'
     container_name: swapi-api
+    restart: always
     ports:
       - "8080:8080"
     depends_on:
-      - cassandra2
+      - cassandra
     environment:
       API_PORT: "8080"
-      CASSANDRA_HOST: "cassandra2"
+      CASSANDRA_HOST: "cassandra"
       CASSANDRA_USERNAME: "cassandra"
       CASSANDRA_PASSWORD: "cassandra"
 
